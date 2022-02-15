@@ -1,0 +1,3 @@
+I opened the zip file first using 7z unzip command, which gave me the paragraph of password. I used that paragraph in the passwords.py file to extract the password for each secret image file. The passwords.py file is included and the opened pictures are included in this folder. 
+
+I researched the Artist's name, Noah Regan, and found many pictures. Accourding to this source (https://www.washingtonpost.com/arts-entertainment/2020/04/11/art-memes-hopper-scream-last-supper-purell-earring/) The picture was created sometime around April 2020. 
