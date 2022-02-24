@@ -6,7 +6,10 @@ Double transposition cipher implementation
 @version: 2022.2
 """
 
+from operator import index
+from pydoc import plain
 from typing import Any
+from xml.etree.ElementInclude import include
 
 
 def encrypt(plaintext: str, row_key: tuple[int], col_key: tuple[int]) -> str:
@@ -31,6 +34,38 @@ def encrypt(plaintext: str, row_key: tuple[int], col_key: tuple[int]) -> str:
     # TODO: Implement this function
     ...
 
+    inRow = []
+    lstPlnTxt = list(plaintext)
+    
+    for ro in range(len(row_key)):
+        inCol = []
+        for clm in range(len(col_key)):
+            inCol.append(lstPlnTxt[clm])
+        for ltr in inCol:
+            lstPlnTxt.pop(lstPlnTxt.index(ltr))
+        inRow.append(inCol)
+        
+    inRowemt = []
+    inColemt = []
+    
+    for i in range(len(col_key)):
+        inColemt.append(0)
+    for j in range(len(row_key)):
+        inRowemt.append(inColemt)
+        
+    for iro in range(len(row_key)):
+        inRowemt[iro] = inRow[row_key[iro]]
+        noChangeClRo = inRowemt[iro].copy()
+        for icl in range(len(col_key)):
+            inRowemt[iro][icl] = noChangeClRo[col_key[icl]]
+
+    tostr = ""
+    for l in inRowemt:
+        tostr += ''.join([str(elem) for elem in l])
+
+    return tostr
+    
+
 
 def decrypt(ciphertext: str, row_key: tuple[int], col_key: tuple[int]) -> str:
     """Decrypt ciphertext using double transposition cipher
@@ -53,6 +88,37 @@ def decrypt(ciphertext: str, row_key: tuple[int], col_key: tuple[int]) -> str:
     """
     # TODO: Implement this function
     ...
+
+    inRow = []
+    lstPlnTxt = list(ciphertext)
+    
+    for ro in range(len(row_key)):
+        inCol = []
+        for clm in range(len(col_key)):
+            inCol.append(lstPlnTxt[clm])
+        for ltr in inCol:
+            lstPlnTxt.pop(lstPlnTxt.index(ltr))
+        inRow.append(inCol)
+        
+    inRowemt = []
+    inColemt = []
+    
+    for i in range(len(col_key)):
+        inColemt.append(0)
+    for j in range(len(row_key)):
+        inRowemt.append(inColemt)
+        
+    for iro in range(len(row_key)):
+        inRowemt[iro] = inRow[row_key.index(iro)]
+        noChangeClRo = inRowemt[iro].copy()
+        for icl in range(len(col_key)):
+            inRowemt[iro][icl] = noChangeClRo[col_key.index(icl)]
+
+    tostr = ""
+    for l in inRowemt:
+        tostr += ''.join([str(elem) for elem in l])
+
+    return tostr
 
 
 def analyze(ciphertext: str) -> set[str]:
