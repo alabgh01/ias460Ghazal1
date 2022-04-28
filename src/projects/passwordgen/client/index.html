@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>PassGen</title>
+        <!--css files-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!--js files-->
+        <script src="script.js"></script>
+        <!--bootstrap files-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <header class="container mt-4">
+            
+        </header>
+        <main class="container mt-4">
+            <h1>Welcome to PassGen!</h1>
+            <form>
+                <label for="ch-pref" class="form-label">Characters Prefrences</label>
+                <select class="form-select m-3" id="contains">
+                    <option value="0"> </option>
+                    <option value="digits">digits</option>
+                    <option value="lower">lowercase letters</option>
+                    <option value="upper">uppercase letters</option>
+                    <option value="letters">lowercase and uppercase letters only</option>
+                    <option value="alphanum">digits and letters</option>
+                    <option value="special">special printable characters only</option>
+                    <option value="all">All printable characters (digits, letters, special...)</option>
+                </select>
+                <div class="">
+                    <label for="len" class="form-label">Preferred Password length</label>
+                    <input type="number" min="1" max="30" class="form-control m-3" id="len">
+                  </div>
+                <div class="">
+                    <label for="num" class="form-label">Preferred Number of Suggestions</label>
+                    <input type="number" min="1" max="20" class="form-control m-3" id="num">
+                  </div>
+                <label for="pwpf" class="form-label">Would you like a password or a passphrase?</label>
+                <br>
+                <div class="form-check form-check m-3">
+                    <input class="form-check-input" type="radio" name="pwpf" id="pw" value="pw" onclick="nopf()">
+                    <label class="form-check-label" for="pw">Password</label>
+                </div>
+                <div class="form-check form-check m-3">
+                    <input class="form-check-input" type="radio" name="pwpf" id="pf" value="pf" onclick="passPhraseSep()">
+                    <label class="form-check-label" for="pf">PassPhrase</label>
+                    <div id="spDiv"></div>
+                </div>
+                <div class="m-3">
+                </div>
+                <button type="button" class="btn btn-primary" id="submit-btn" onclick="requestPasswords()">Submit</button>
+            </form>
+            <div id="pass-div">
+            </div>
+        </main>
+        <footer class="container mt-4">
+            <p class="d-flex justify-content-center">&copy;PassGen2022</p>
+        </footer>
+    </body>
+</html>
