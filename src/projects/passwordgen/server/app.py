@@ -3,8 +3,6 @@
 passgen
 """
 
-from cmath import log
-import json
 from flask import Flask, Response, jsonify, make_response, redirect, request
 from flask_cors import CORS, cross_origin
 from string import printable, punctuation, digits
