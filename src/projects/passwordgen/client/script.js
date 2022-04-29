@@ -6,7 +6,7 @@
 
 console.log("js working");
 
-const BASE_URL = "http://127.0.0.1:5000/api/psgn1";
+const BASE_URL = "http://ghazalal.pythonanywhere.com/api/psgn1/";
 
 function passPhraseSep(){
     // if pasphrase is chosen, display, seperator choices
