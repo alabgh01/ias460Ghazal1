@@ -131,4 +131,4 @@ def calc_entropy(l,ln):
     return math.log(l**ln, 2)
 
 if __name__ == "__main__":
-    app.run("0.0.0.0")
+    app.run()
