@@ -3,9 +3,9 @@
 passgen
 """
 
-from flask import Flask, Response, jsonify, make_response, redirect, request
+from flask import Flask
 from flask_cors import CORS, cross_origin
-from string import printable, punctuation, digits
+from string import printable
 import random
 import math
 
