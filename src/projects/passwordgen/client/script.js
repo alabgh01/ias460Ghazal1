@@ -22,7 +22,7 @@ function passPhraseSep(){
             let slct = document.createElement("select");
             slct.setAttribute("class", "form-select m-3");
             slct.setAttribute("id", "sprtr");
-            let symbols = ["*", "-", "_", "$", "."];
+            let symbols = ["*", "-", "_", "$", ".", "+"];
             for (let s of symbols){
                 let op = document.createElement("option");
                 op.setAttribute("vlaue", `${s}`);

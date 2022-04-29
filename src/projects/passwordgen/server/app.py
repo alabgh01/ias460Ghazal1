@@ -116,14 +116,15 @@ def all(ln, num):
 @cross_origin()
 def psphrs(sprtr, ln, num):
     # open file to get words
-    with open("../words") as f:
+    with open("words") as f:
         lines = f.read().splitlines()
         res = {}
         for j in range(num):
-            ps = ""
+            ps = []
             for i in range(ln):
                 idx = random.randint(0, len(lines)-1)
-                ps += lines[idx] + sprtr
+                ps.append(lines[idx])
+            ps = f'{sprtr}'.join(ps)
             res[f"{ps}"] = int(calc_entropy(len(lines),len(ps)))
         return res
 
