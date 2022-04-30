@@ -92,34 +92,44 @@ async function requestPasswords(){
     let contains = document.querySelector("#contains").value;
     let ln = document.querySelector("#len").value;
     let num = document.querySelector("#num").value;
-    let pw = document.querySelector("#pw");
-    let pf = document.querySelector("#pf");
-    if (contains && ln && num){
-        if (pw.checked){
-            return await fetch(`${BASE_URL}/${contains}/${ln}/${num}`)
-            .then(response => response.json())
-            .then(json => printPasswords(json))
-            .catch(error => console.log(error));
-        }else if (pf.checked){
-            let sprtr = document.querySelector("#sprtr").value;
-            return await fetch(`${BASE_URL}/psphrs/${sprtr}/${ln}/${num}`)
-            .then(response => response.json())
-            .then(json => printPasswords(json))
-            .catch(error => console.log(error));
+    if (ln > 30 || ln < 1 || num > 20 || num < 1){
+        let mn = document.querySelector("#pass-div");
+        let alrt = document.createElement("div");
+        alrt.setAttribute("class", "alert alert-danger m-3");
+        alrt.setAttribute("role", "alert");
+        alrt.innerHTML = "Please try again, the chosen length should be between 1 and 30, while the numebr of suggestions should be bwtween 1 and 20.";
+        mn.appendChild(alrt);
+    }else{
+        let pw = document.querySelector("#pw");
+        let pf = document.querySelector("#pf");
+        if (contains && ln && num){
+            if (pw.checked){
+                return await fetch(`${BASE_URL}/${contains}/${ln}/${num}`)
+                .then(response => response.json())
+                .then(json => printPasswords(json))
+                .catch(error => console.log(error));
+            }else if (pf.checked){
+                let sprtr = document.querySelector("#sprtr").value;
+                return await fetch(`${BASE_URL}/psphrs/${sprtr}/${ln}/${num}`)
+                .then(response => response.json())
+                .then(json => printPasswords(json))
+                .catch(error => console.log(error));
+            }else{
+                let mn = document.querySelector("#pass-div");
+                let alrt = document.createElement("div");
+                alrt.setAttribute("class", "alert alert-danger m-3");
+                alrt.setAttribute("role", "alert");
+                alrt.innerHTML = "Please choose a password or a passphrase.";
+                mn.appendChild(alrt);
+            }
         }else{
             let mn = document.querySelector("#pass-div");
             let alrt = document.createElement("div");
             alrt.setAttribute("class", "alert alert-danger m-3");
             alrt.setAttribute("role", "alert");
-            alrt.innerHTML = "Please choose a password or a passphrase.";
+            alrt.innerHTML = "Some information is missing, please make sure to fill out all the fields in the form.";
             mn.appendChild(alrt);
         }
-    }else{
-        let mn = document.querySelector("#pass-div");
-        let alrt = document.createElement("div");
-        alrt.setAttribute("class", "alert alert-danger m-3");
-        alrt.setAttribute("role", "alert");
-        alrt.innerHTML = "Some information is missing, please make sure to fill out all the fields in the form.";
-        mn.appendChild(alrt);
     }
+    
 }
