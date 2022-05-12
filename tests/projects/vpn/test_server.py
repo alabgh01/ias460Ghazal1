@@ -6,7 +6,8 @@ Roman Yasinovskyy, 2020
 
 
 import pytest
-from Crypto.Cipher import XOR, DES, AES, Blowfish
+# from Crypto.Cipher import XOR, DES, AES, Blowfish
+from Crypto.Cipher import DES, AES, Blowfish
 from Crypto.Hash import SHA256, HMAC
 from src.projects.vpn.server import parse_proposal
 from src.projects.vpn.server import select_cipher

@@ -4,10 +4,12 @@
 from socket import socket, gethostname
 from socket import AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 from typing import Tuple, Dict
+from Crypto.Hash import SHA256, HMAC
+from Crypto.Cipher import AES, DES, Blowfish
+from diffiehellman.diffiehellman import DiffieHellman
 
-HOST = gethostname()
-PORT = 4600
-
+cphr_map = {"DES": DES, "AES": AES, "Blowfish": Blowfish}
+iv_ln = {"DES": 8, "AES": 16, "Blowfish": 8}
 
 def parse_proposal(msg: str) -> Dict[str, list]:
     """Parse client's proposal
@@ -15,7 +17,29 @@ def parse_proposal(msg: str) -> Dict[str, list]:
     :param msg: message from the client with a proposal (ciphers and key sizes)
     :return: the ciphers and keys as a dictionary
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    res = {}
+    msg = msg[16:]
+    cphr_nm = ''
+    k_size = ''
+    k_lst = []
+    for m in msg:
+        if m.isalpha():
+            cphr_nm += m
+        elif m.isalnum():
+            k_size += m
+        elif m == ',':
+            if last_c.isalnum():
+                k_lst.append(int(k_size))
+                k_size = ''
+        elif m == ']':
+            k_lst.append(int(k_size))
+            k_size = ''
+            res[cphr_nm] = k_lst
+            cphr_nm = ''
+            k_lst = []
+        last_c = m
+    return res
 
 
 def select_cipher(supported: dict, proposed: dict) -> Tuple[str, int]:
@@ -26,7 +50,20 @@ def select_cipher(supported: dict, proposed: dict) -> Tuple[str, int]:
     :return: tuple (cipher, key_size) of the common cipher where key_size is the longest supported by both
     :raise: ValueError if there is no (cipher, key_size) combination that both client and server support
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    ciphers = set(supported.keys()).intersection(proposed.keys())
+    cphr = None
+    k_size = -1
+    if ciphers != set():
+        for c in ciphers:
+            crnt_k_size = max(set([-1]).union(set(supported.get(c)).intersection(proposed.get(c))))
+            if crnt_k_size > k_size:
+                k_size = crnt_k_size
+                cphr = c
+    if (not cphr) or (k_size == -1):
+        raise ValueError(
+            'Could not agree on a cipher')
+    return (cphr, k_size)
 
 
 def generate_cipher_response(cipher: str, key_size: int) -> str:
@@ -36,7 +73,8 @@ def generate_cipher_response(cipher: str, key_size: int) -> str:
     :param key_size: chosen key size
     :return: (cipher, key_size) selection as a string
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    return f"ChosenCipher:{cipher},{key_size}"
 
 
 def parse_dhm_request(msg: str) -> int:
@@ -45,7 +83,8 @@ def parse_dhm_request(msg: str) -> int:
     :param msg: client's DHMKE initial message
     :return: number in the client's message
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    return int(msg.split(':')[1])
 
 
 def get_key_and_iv(
@@ -64,7 +103,14 @@ def get_key_and_iv(
     `iv` is the *last* `ivlen` bytes of the shared key
     Both key and IV must be returned as bytes
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    cphr = cphr_map[cipher_name]
+    key = shared_key[:key_size//8]
+    if cipher_name == "DES":
+        key += '\0'
+    key = key.encode()
+    iv = shared_key[-1 * iv_ln[cipher_name]:].encode()
+    return cphr, key, iv
 
 
 def generate_dhm_response(public_key: int) -> str:
@@ -73,7 +119,8 @@ def generate_dhm_response(public_key: int) -> str:
     :param public_key: public portion of the DHMKE
     :return: string according to the specification
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    return f'DHMKE:{public_key}'
 
 
 def read_message(msg_cipher: bytes, crypto: object) -> Tuple[str, str]:
@@ -83,7 +130,12 @@ def read_message(msg_cipher: bytes, crypto: object) -> Tuple[str, str]:
     :crypto: chosen cipher, must be initialized in the `main`
     :return: (plaintext, hmac) tuple
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    cphr_in = msg_cipher[:-64]
+    hmac = msg_cipher[-64:].decode('utf-8')
+    plain = crypto.decrypt(cphr_in).decode('utf-8')
+    plain = plain.strip('\0')
+    return (plain, hmac)
 
 
 def validate_hmac(msg_cipher: bytes, hmac_in: str, hashing: object) -> bool:
@@ -94,7 +146,14 @@ def validate_hmac(msg_cipher: bytes, hmac_in: str, hashing: object) -> bool:
     :param hashing: hashing object, must be initialized in the `main`
     :raise: ValueError is HMAC is invalid
     """
-    raise NotImplementedError
+    # raise NotImplementedError
+    cphr = msg_cipher[:-64]
+    hashing.update(cphr)
+    hsh = hashing.hexdigest()
+    if hsh == hmac_in:
+        return True
+    else:
+        raise ValueError('Bad HMAC')
 
 
 def main():
@@ -102,6 +161,10 @@ def main():
 
     See vpn.md for details
     """
+
+    HOST = gethostname()
+    PORT = 4600
+
     server_sckt = socket(AF_INET, SOCK_STREAM)
     server_sckt.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_sckt.bind((HOST, PORT))
