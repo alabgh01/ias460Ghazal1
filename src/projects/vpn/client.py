@@ -3,10 +3,11 @@
 
 from calendar import c
 from socket import socket, gethostname, AF_INET, SOCK_STREAM
-from typing import Tuple, Dict
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Cipher import AES, DES, Blowfish
 from diffiehellman.diffiehellman import DiffieHellman
+from typing import Tuple, Dict
+
 
 
 cphr_map = {"DES": DES, "AES": AES, "Blowfish": Blowfish}
@@ -140,18 +141,20 @@ def main():
     PORT = 4600
     SUPPORTED_CIPHERS = {"AES": [128, 192, 256],"Blowfish": [112, 224, 448], "DES": [56]}
 
+
+
     client_sckt = socket(AF_INET, SOCK_STREAM)
     client_sckt.connect((HOST, PORT))
     print(f"Connected to {HOST}:{PORT}")
 
     print("Negotiating the cipher")
-    # cipher_name = "CS"
-    # key_size = 460
+    cipher_name = "CS"
+    key_size = 460
+    # Follow the description
     msg_out = generate_cipher_proposal(SUPPORTED_CIPHERS)
     client_sckt.send(msg_out.encode())
-    msg_in = client_sckt.recv(4096).decode('utf-8')
+    msg_in = client_sckt.recv(4096)
     cipher_name, key_size = parse_cipher_selection(msg_in)
-    # Follow the description
     print(f"We are going to use {cipher_name}{key_size}")
 
     print("Negotiating the key")
@@ -177,9 +180,53 @@ def main():
         if msg_out == "\\quit":
             client_sckt.close()
             break
-        client_sckt.send(msg_out.encode())
+        cphr_out, hmac_out = encrypt_message(msg_out, crypto, hashing)
+        client_sckt.send(cphr_out.encode()+ hmac_out.encode())
         msg_in = client_sckt.recv(4096)
         print(msg_in.decode("utf-8"))
+
+
+    # client_sckt = socket(AF_INET, SOCK_STREAM)
+    # client_sckt.connect((HOST, PORT))
+    # print(f"Connected to {HOST}:{PORT}")
+
+    # print("Negotiating the cipher")
+    # # cipher_name = "CS"
+    # # key_size = 460
+    # msg_out = generate_cipher_proposal(SUPPORTED_CIPHERS)
+    # client_sckt.send(msg_out.encode())
+    # msg_in = client_sckt.recv(4096).decode('utf-8')
+    # cipher_name, key_size = parse_cipher_selection(msg_in)
+    # # Follow the description
+    # print(f"We are going to use {cipher_name}{key_size}")
+
+    # print("Negotiating the key")
+    # # Follow the description
+    # dh = DiffieHellman()
+    # dh.generate_public_key()
+    # msg_out = generate_dhm_request(dh.public_key)
+    # client_sckt.send(msg_out.encode())
+    # msg_in = client_sckt.recv(4096).decode('utf-8')
+    # server_public_key = parse_dhm_response(msg_in)
+    # dh.generate_shared_secret(server_public_key)
+    # cipher, key, iv = get_key_and_iv(dh.shared_key, cipher_name, key_size)
+    # print("The key has been established")
+
+    # print("Initializing cryptosystem")
+    # # Follow the description
+    # crypto = cipher.new(key, cipher.MODE_CBC, iv)
+    # hashing = HMAC.new(key, digestmod=SHA256)
+    # print("All systems ready")
+
+    # while True:
+    #     msg_out = input("Enter message: ")
+    #     if msg_out == "\\quit":
+    #         client_sckt.close()
+    #         break
+    #     ciph_out, hmac_out = encrypt_message(msg_out, crypto, hashing)
+    #     client_sckt.send(msg_out.encode())
+    #     msg_in = client_sckt.recv(4096)
+    #     print(msg_in.decode("utf-8"))
 
 
 if __name__ == "__main__":

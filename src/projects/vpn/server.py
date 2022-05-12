@@ -3,10 +3,11 @@
 
 from socket import socket, gethostname
 from socket import AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-from typing import Tuple, Dict
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Cipher import AES, DES, Blowfish
 from diffiehellman.diffiehellman import DiffieHellman
+from typing import Tuple, Dict
+
 
 cphr_map = {"DES": DES, "AES": AES, "Blowfish": Blowfish}
 iv_ln = {"DES": 8, "AES": 16, "Blowfish": 8}
@@ -165,6 +166,8 @@ def main():
     HOST = gethostname()
     PORT = 4600
 
+
+
     server_sckt = socket(AF_INET, SOCK_STREAM)
     server_sckt.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_sckt.bind((HOST, PORT))
@@ -176,16 +179,34 @@ def main():
     print("Negotiating the cipher")
     cipher_name = "CS"
     key_size = 460
-    # Follow the description
+    # TODO: Follow the description
+    SUPPORTED_CIPHERS = {"DES": [56]}
+    msg_in = conn.recv(4096).decode('utf-8')
+    proposed = parse_proposal(msg_in)
+    cipher_name, key_size = select_cipher(SUPPORTED_CIPHERS, proposed)
     print(f"We are going to use {cipher_name}{key_size}")
 
     print("Negotiating the key")
-    # Follow the description
+    # TODO: Follow the description
+    dh = DiffieHellman()
+    dh.generate_public_key()
+    msg_in = conn.recv(4096).decode('utf-8')
+    client_public_key = parse_dhm_request(msg_in)
+    dh.generate_shared_secret(client_public_key)
+    msg_out = generate_dhm_response(dh.public_key)
+    conn.send(msg_out.encode())
+    cipher, key, iv = get_key_and_iv(dh.shared_key, cipher_name, key_size)
     print("The key has been established")
 
     print("Initializing cryptosystem")
-    # Follow the description
+    # TODO: Follow the description
     print("All systems ready")
+
+
+
+    crypto = cipher.new(key, cipher.MODE_CBC, iv)
+    hashing = HMAC.new(key, digestmod=SHA256)
+
 
     while True:
         msg_in = conn.recv(4096).decode("utf-8")
@@ -195,6 +216,31 @@ def main():
         print(f"Received: {msg_in}")
         msg_out = f"Server says: {msg_in[::-1]}"
         conn.send(msg_out.encode())
+
+    
+
+    # print("Negotiating the cipher")
+    # cipher_name = "CS"
+    # key_size = 460
+    # # Follow the description
+    # print(f"We are going to use {cipher_name}{key_size}")
+
+    # print("Negotiating the key")
+    # # Follow the description
+    # print("The key has been established")
+
+    # print("Initializing cryptosystem")
+    # # Follow the description
+    # print("All systems ready")
+
+    # while True:
+    #     msg_in = conn.recv(4096).decode("utf-8")
+    #     if len(msg_in) < 1:
+    #         conn.close()
+    #         break
+    #     print(f"Received: {msg_in}")
+    #     msg_out = f"Server says: {msg_in[::-1]}"
+    #     conn.send(msg_out.encode())
 
 
 if __name__ == "__main__":
